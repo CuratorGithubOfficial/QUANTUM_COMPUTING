@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# Виртуальное окружение
+venv/
+.venv/
+env/
+
+# Данные и модели
+outputs/models/*
+outputs/reports/*
+data/raw/*
+data/processed/*
+*.csv
+*.parquet
+*.pkl
+*.pth
+*.pt
+!sample_data.csv
+
+# Конфиденциальные данные
+configs/credentials.yaml
+*.env
+.env.*
+secrets/
+*.key
+*.token
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Логи
+outputs/logs/*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Специфичное для Colab
+.colab_*
