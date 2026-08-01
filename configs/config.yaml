@@ -1,0 +1,79 @@
+# === Основной конфигурационный файл квантового проекта ===
+environment: "colab"
+
+paths:
+  raw_data: "/content/drive/MyDrive/Datasets/quantum/"
+  processed_data: "/content/drive/MyDrive/Datasets/quantum/processed/"
+  model_weights: "outputs/models/vqc_model.pth"
+  logs: "outputs/logs/"
+
+# --- Квантовые бэкенды ---
+backends:
+  qcloud:
+    chip: "WK_C180"
+    default_shots: 2000
+  octillion:
+    chip: "Snowdrop 8q ver2"
+    default_shots: 4096
+  cudaq:
+    default_shots: 5000
+  local_simulator: "CPUQVM"
+
+# --- Тест Белла (нарушение неравенств) ---
+bell_test:
+  angles:
+    a: [0, 1.5708]       # 0°, 90° (в радианах)
+    b: [0.7854, 2.3562]  # 45°, 135°
+  classical_bound: 2.0
+  quantum_bound: 2.8284   # 2*sqrt(2)
+  shots_per_correlator: 2000
+
+# --- Сверхплотное кодирование ---
+superdense_coding:
+  messages:
+    "00": "Identity"
+    "01": "X gate"
+    "10": "Z gate"
+    "11": "XZ gates"
+  shots_per_message: 2000
+
+# --- Квантовая телепортация ---
+teleportation:
+  state_to_teleport: "|1⟩"   # X(0)
+  physical_qubits: [62, 71, 80]
+  shots: 3000
+  use_qif: false             # qif не поддерживается на реальном чипе
+  post_select: true          # Пост-селекция по измерениям Алисы
+
+# --- Алгоритм Дойча-Йожи ---
+deutsch_jozsa:
+  n_qubits: 2
+  oracle_type: "balanced"    # balanced / constant
+  shots: 3000
+
+# --- VQC (Вариационный квантовый классификатор) ---
+vqc:
+  iris:
+    test_size: 0.3
+    random_state: 42
+    feature_range: [0, 3.14159]   # [0, pi]
+    feature_map_layers: 2
+    ansatz_layers: 2
+    optimizer: "COBYLA"
+    max_iterations: 200
+    restarts: 10
+  multiclass:
+    n_qubits: 8
+    test_size: 0.3
+    random_state: 42
+    feature_map_layers: 2
+    ansatz_layers: 2
+    optimizer: "COBYLA"
+    max_iterations: 300
+    n_params: 32
+
+# --- Логирование ---
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "outputs/logs/training.log"
