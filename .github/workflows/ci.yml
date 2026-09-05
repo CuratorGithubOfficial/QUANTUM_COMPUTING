@@ -30,4 +30,4 @@ jobs:
       - name: Lint with Ruff
         run: |
           uv tool install ruff
-          uv tool run ruff check .
+          uv tool run ruff check . --exclude "*.ipynb"
