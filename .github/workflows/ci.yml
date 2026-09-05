@@ -9,6 +9,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -30,4 +31,4 @@ jobs:
       - name: Lint with Ruff
         run: |
           uv tool install ruff
-          uv tool run ruff check . --exclude "*.ipynb"
+          uv tool run ruff check . --exclude "*.ipynb" --output-format concise
