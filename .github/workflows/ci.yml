@@ -18,6 +18,9 @@ jobs:
       - name: Set up Python
         run: uv python install 3.14
 
+          - name: Create virtual environment
+        run: uv venv
+
       - name: Install dependencies
         run: |
           if [ -f requirements.txt ]; then
