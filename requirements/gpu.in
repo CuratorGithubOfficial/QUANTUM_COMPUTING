@@ -1,0 +1,3 @@
+# GPU dependencies (для CUDA-Q и torch с GPU)
+-c prod.txt
+cudaq

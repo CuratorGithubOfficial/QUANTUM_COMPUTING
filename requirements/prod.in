@@ -1,0 +1,12 @@
+# Production dependencies — прямые зависимости
+numpy
+scipy
+pyyaml
+pyqpanda3
+torch
+scikit-learn
+matplotlib
+fastapi
+uvicorn
+pydantic
+wandb

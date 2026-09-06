@@ -1,0 +1,7 @@
+# Development dependencies
+-c prod.txt
+pytest
+pytest-asyncio
+ruff
+mypy
+pre-commit
