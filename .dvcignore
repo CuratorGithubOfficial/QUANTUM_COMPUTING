@@ -1,0 +1,5 @@
+outputs/
+notebooks/
+.venv/
+__pycache__/
+*.pyc
