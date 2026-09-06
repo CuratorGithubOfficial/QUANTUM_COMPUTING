@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  quantum-workspace:
+    build: .
+    volumes:
+      - .:/workspace
+      - ./outputs:/workspace/outputs
+    environment:
+      - PYTHONPATH=/workspace/src
+      - QPANDA_QCLOUD_API_KEY=
+      - OCTILLION_TOKEN=
+    command: pytest tests/ -v
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: quantum
+      POSTGRES_PASSWORD: quantum_dev
+      POSTGRES_DB: quantum_workspace
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
