@@ -1,25 +1,56 @@
-asttokens==3.0.2
-colorama==0.4.6
-comm==0.2.3
-debugpy==1.8.21
-executing==2.2.1
+# === Ядро ===
+numpy==2.1.3
+scipy==1.14.1
+pyyaml==6.0.2
+
+# === Квантовые SDK ===
+pyqpanda3==0.4.0
+# octillion-client — установить из приватного индекса (pip install octillion-client)
+
+# === Машинное обучение ===
+torch==2.5.1
+scikit-learn==1.5.2
+matplotlib==3.9.2
+
+# === Jupyter (для ноутбуков) ===
 ipykernel==7.3.0
 ipython==9.17.1
-ipython-pygments-lexers==1.1.1
-jedi==0.20.0
 jupyter-client==8.10.0
 jupyter-core==5.9.1
+jedi==0.20.0
+parso==0.8.7
+comm==0.2.3
+debugpy==1.8.21
+
+# === Логирование и трекинг ===
+wandb==0.18.7
+
+# === Тестирование ===
+pytest==8.3.4
+pytest-asyncio==0.24.0
+
+# === API ===
+fastapi==0.115.6
+uvicorn==0.32.1
+pydantic==2.10.4
+
+# === Асинхронность ===
+aiofiles==24.1.0
+
+# === Транзитивные зависимости (для совместимости) ===
+asttokens==3.0.2
+colorama==0.4.6
+executing==2.2.1
+ipython-pygments-lexers==1.1.1
 matplotlib-inline==0.2.2
 nest-asyncio2==1.7.2
 packaging==26.3
-parso==0.8.7
 platformdirs==4.11.7
 prompt-toolkit==3.0.53
 psutil==7.2.2
 pure-eval==0.2.3
 pygments==2.21.0
 python-dateutil==2.9.0.post0
-pyyaml==6.0.3
 pyzmq==27.2.0
 six==1.17.0
 stack-data==0.6.3

@@ -1,64 +1,81 @@
-"""Тесты для утилит квантовых схем."""
-import pytest
-from pyqpanda3.core import CPUQVM, QProg, measure
+"""Тесты для утилит квантовых схем — версия для Abstraction Layer."""
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from adapters.mock_adapter import MockBackend
+from core.interfaces import QuantumCircuit
 from utils.quantum_helpers import (
+    build_teleportation_circuit,
     create_bell_pair,
-    encode_superdense,
     decode_superdense,
-    build_teleportation_circuit
+    encode_superdense,
+    measure_correlation,
 )
 
+
 def test_create_bell_pair():
-    """Тест: создание состояния Белла на симуляторе."""
-    prog = QProg()
-    create_bell_pair(prog, 0, 1)
-    prog << measure([0, 1], [0, 1])
-    
-    machine = CPUQVM()
-    machine.run(prog, shots=1000)
-    counts = machine.result().get_counts()
-    
-    has_00 = any(k in ('00', '0x0') for k in counts.keys())
-    has_11 = any(k in ('11', '0x3') for k in counts.keys())
-    assert has_00, f"No |00> in counts: {counts}"
-    assert has_11, f"No |11> in counts: {counts}"
+    """Тест: создание состояния Белла добавляет H и CNOT."""
+    circuit = QuantumCircuit()
+    create_bell_pair(circuit, 0, 1)
+
+    assert len(circuit) == 2
+    assert circuit.gates[0] == ("H", (0,), [])
+    assert circuit.gates[1] == ("CNOT", (0, 1), [])
 
 
 def test_encode_superdense_all_messages():
-    """Тест: сверхплотное кодирование — все 4 сообщения декодируются однозначно."""
-    results = {}
+    """Тест: сверхплотное кодирование — все 4 сообщения дают разные схемы."""
+    circuits = {}
     for bits in ["00", "01", "10", "11"]:
-        prog = QProg()
-        encode_superdense(prog, bits, 0, 1)
-        decode_superdense(prog, 0, 1)
-        prog << measure([0, 1], [0, 1])
-        
-        machine = CPUQVM()
-        machine.run(prog, shots=500)
-        result = machine.result()
-        counts = result.get_counts()
-        
-        if counts:
-            # Находим доминирующий исход
-            max_state = max(counts, key=counts.get)
-            max_prob = counts[max_state] / sum(counts.values())
-            results[bits] = (max_state, max_prob)
-            
-            # Каждое сообщение должно давать уникальный доминирующий исход с вероятностью > 0.9
-            assert max_prob > 0.9, f"Low confidence for message {bits}: {max_prob:.4f}"
-    
-    # Все 4 сообщения должны давать разные доминирующие исходы
-    dominant_states = [v[0] for v in results.values()]
-    assert len(set(dominant_states)) == 4, f"Messages not uniquely decoded: {results}"
+        circuit = QuantumCircuit()
+        encode_superdense(circuit, bits, 0, 1)
+        decode_superdense(circuit, 0, 1)
+        # Преобразуем params list → tuple для хэшируемости
+        circuits[bits] = tuple(
+            (name, qubits, tuple(params)) for name, qubits, params in circuit.gates
+        )
+
+    # Все 4 схемы должны отличаться
+    unique_gates = set(circuits.values())
+    assert len(unique_gates) == 4, f"Схемы не уникальны: {circuits}"
 
 
 def test_build_teleportation_circuit():
-    """Тест: схема телепортации строится без ошибок."""
-    prog = build_teleportation_circuit(state_prep_gate="X")
-    assert prog is not None
-    
-    prog2 = build_teleportation_circuit(state_prep_gate="H")
-    assert prog2 is not None
-    
-    prog3 = build_teleportation_circuit(state_prep_gate="")
-    assert prog3 is not None
+    """Тест: схема телепортации строится корректно."""
+    # X → |1⟩
+    circuit_x = build_teleportation_circuit(state_prep_gate="X")
+    assert circuit_x.gates[0] == ("X", (0,), [])
+    assert ("H", (1,), []) in circuit_x.gates
+    assert ("CNOT", (1, 2), []) in circuit_x.gates
+    assert ("CNOT", (0, 1), []) in circuit_x.gates
+
+    # H → |+⟩
+    circuit_h = build_teleportation_circuit(state_prep_gate="H")
+    assert circuit_h.gates[0] == ("H", (0,), [])
+
+    # Пустой → |0⟩
+    circuit_0 = build_teleportation_circuit(state_prep_gate="")
+    assert circuit_0.gates[0] == ("H", (1,), [])
+
+
+def test_measure_correlation_with_mock():
+    """Тест: измерение коррелятора на MockBackend."""
+    backend = MockBackend(fixed_counts={"00": 500, "11": 500})
+    expectation = measure_correlation(backend, 0.0, 0.0, shots=1000)
+
+    # Для |Φ⁺⟩ при θ_a=0, θ_b=0: E = +1
+    assert abs(expectation - 1.0) < 0.01
+
+
+def test_parse_bitstring():
+    """Тест: парсинг битовых строк."""
+    from utils.quantum_helpers import _parse_bitstring
+
+    assert _parse_bitstring("0x3", 2) == "11"
+    assert _parse_bitstring("0x0", 2) == "00"
+    assert _parse_bitstring("1", 3) == "001"
+    assert _parse_bitstring("101", 3) == "101"
